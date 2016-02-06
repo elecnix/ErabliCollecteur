@@ -1,6 +1,8 @@
-var fs = require('fs');
-var Promise = require('promise');
-var readFile = Promise.denodeify(fs.readFile);
+var async = require('asyncawait/async');
+var await = require('asyncawait/await');
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require('fs'));
+var readFile = fs.readFile;
 var http = require('http');
 var spark = require('spark');
 var sqlite3 = require('sqlite3').verbose();
@@ -93,11 +95,14 @@ function createExpressApp() {
 }
 
 function connectToParticleCloud(db, eventDB) {
-  spark.login({
-    accessToken: accessToken
-  }).then(
-    function(token) {
-      console.log('Login completed. Token: ', token);
+  return async(function() {
+    try {
+      var loginOptions = {
+        accessToken: accessToken
+      };
+      console.log('Login...');
+      var token = await (spark.login(loginOptions));
+      console.log('Login completed with await. Token: ', token);
       requestAllDeviceReplay(db);
       console.log('Connecting to event stream.');
       spark.getEventStream(false, 'mine', function(event, err) {
@@ -115,11 +120,10 @@ function connectToParticleCloud(db, eventDB) {
           connectToParticleCloud();
         }
       });
-    },
-    function(err) {
+    } catch (err) {
       console.log('Login failed: ', err);
     }
-  );
+  });
 }
 
 function requestAllDeviceReplay(db) {

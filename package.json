@@ -6,8 +6,9 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "asyncawait": ">= 1.0.2",
     "express": "^3.4.0",
-    "promise": "^6.1.0",
+    "bluebird": "",
     "spark": ">= 0.2.6",
     "sqlite3": ">= 3.0",
     "websocket": ""
